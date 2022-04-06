@@ -1,0 +1,18 @@
+[package]
+name = "lisensei"
+version = "0.1.0"
+authors = ["gotodeploy <1491134+gotodeploy@users.noreply.github.com>"]
+edition = "2021"
+description = "注音(Bopomofo) typing training tool for traditional Chinese language learners"
+repository = "https://github.com/gotodeploy/lisensei"
+license = "Apache-2.0"
+
+[dependencies]
+macroquad = "0.3"
+macroquad-text = "0.1.1"
+serde = { version = "1", features = ["derive"] }
+csv = "1.1"
+rust-embed = {version = "6.3.0", features = ["compression", "interpolate-folder-path", "include-exclude"] }
+
+[dev-dependencies]
+rstest = "0.12.0"

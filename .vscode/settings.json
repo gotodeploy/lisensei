@@ -1,0 +1,8 @@
+{
+	"rust-analyzer.runnableEnv": {
+		"PATH_ASSETS": "assets/"
+	},
+	"rust-analyzer.server.extraEnv": {
+		"PATH_ASSETS": "assets/"
+	}
+}

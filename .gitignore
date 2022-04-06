@@ -1,0 +1,9 @@
+/target/
+.cargo-ok
+**/*.rs.bk
+
+.idea/
+.DS_Store
+
+/assets/
+/public/*.wasm
