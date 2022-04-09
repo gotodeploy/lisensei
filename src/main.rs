@@ -1,13 +1,14 @@
 mod font;
 mod moedict;
 
+use lisensei::moedict::MoeDictionary;
 use macroquad::miniquad::date;
 use macroquad::prelude::*;
 use macroquad::rand::*;
 use rust_embed::RustEmbed;
 
 use font::load_font;
-use moedict::{alphabet_to_bopomofo, load_moedict};
+use moedict::alphabet_to_bopomofo;
 
 #[derive(RustEmbed)]
 #[folder = "$PATH_ASSETS"]
@@ -30,7 +31,7 @@ async fn main() {
     let file_font = Asset::get("font.ttf").unwrap();
     let file_moedict = Asset::get("dict.csv").unwrap();
     let font = load_font(file_font.data.as_ref());
-    let moedict = load_moedict(file_moedict.data.as_ref()).unwrap();
+    let moedict = MoeDictionary::from_csv(file_moedict.data.as_ref()).moe_words;
 
     rand::srand(date::now() as _);
     let mut word = moedict.choose().unwrap();

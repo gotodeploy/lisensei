@@ -2,13 +2,43 @@ extern crate csv;
 extern crate serde;
 
 use serde::Deserialize;
-use std::error::Error;
 
 #[derive(PartialEq, Eq, Debug, Deserialize)]
 pub struct MoeWord {
     pub title: String,      // 正體字形
     pub bopomofo: String,   // 臺灣音讀
     pub definition: String, // 釋義１
+}
+
+impl MoeWord {
+    pub fn title(&self) -> &String {
+        &self.title
+    }
+
+    pub fn bopomofo(&self) -> &String {
+        &self.bopomofo
+    }
+
+    pub fn definition(&self) -> &String {
+        &self.definition
+    }
+}
+
+pub struct MoeDictionary {
+    pub moe_words: Vec<MoeWord>,
+}
+
+impl MoeDictionary {
+    pub fn from_csv(moedict: &[u8]) -> Self {
+        let mut reader = csv::Reader::from_reader(moedict);
+
+        MoeDictionary {
+            moe_words: reader
+                .deserialize()
+                .map(|result| result.unwrap())
+                .collect::<Vec<MoeWord>>(),
+        }
+    }
 }
 
 pub fn alphabet_to_bopomofo(character: char) -> char {
@@ -57,14 +87,4 @@ pub fn alphabet_to_bopomofo(character: char) -> char {
         '7' => '˙',
         _ => character,
     }
-}
-
-pub fn load_moedict(moedict: &[u8]) -> Result<Vec<MoeWord>, Box<dyn Error>> {
-    let mut reader = csv::Reader::from_reader(moedict);
-    let mut words: Vec<MoeWord> = Vec::new();
-    for record in reader.deserialize() {
-        let word: MoeWord = record?;
-        words.push(word);
-    }
-    Ok(words)
 }

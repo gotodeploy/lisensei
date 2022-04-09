@@ -3,15 +3,15 @@ use rstest::rstest;
 use lisensei::moedict::*;
 
 #[test]
-fn test_load_moedict() {
+fn test_load_moedict_from_csv() {
     let dict_source = [
         "title,bopomofo,definition",
         "一,丨,自然数",
         "一一,丨　丨,自然数",
     ]
     .join("\n");
-    let moedict = load_moedict(dict_source.as_bytes()).unwrap();
-    let dict_expected: Vec<MoeWord> = vec![
+    let moe_words = MoeDictionary::from_csv(dict_source.as_bytes()).moe_words;
+    let moe_words_expected: Vec<MoeWord> = vec![
         MoeWord {
             title: "一".to_string(),
             bopomofo: "丨".to_string(),
@@ -24,7 +24,7 @@ fn test_load_moedict() {
         },
     ];
 
-    assert_eq!(moedict, dict_expected);
+    assert_eq!(moe_words, moe_words_expected);
 }
 
 #[rstest]
