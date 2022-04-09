@@ -8,9 +8,9 @@ use serde::Deserialize;
 
 #[derive(PartialEq, Eq, Debug, Deserialize)]
 pub struct MoeWord {
-    pub title: String,      // 正體字形
-    pub bopomofo: String,   // 臺灣音讀
-    pub definition: String, // 釋義１
+    title: String,      // 正體字形
+    bopomofo: String,   // 臺灣音讀
+    definition: String, // 釋義１
 }
 
 impl MoeWord {
