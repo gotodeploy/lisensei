@@ -2,9 +2,7 @@ mod font;
 mod moedict;
 
 use lisensei::moedict::MoeDictionary;
-use macroquad::miniquad::date;
 use macroquad::prelude::*;
-use macroquad::rand::*;
 use rust_embed::RustEmbed;
 
 use font::load_font;
@@ -31,16 +29,15 @@ async fn main() {
     let file_font = Asset::get("font.ttf").unwrap();
     let file_moedict = Asset::get("dict.csv").unwrap();
     let font = load_font(file_font.data.as_ref());
-    let moedict = MoeDictionary::from_csv(file_moedict.data.as_ref()).moe_words;
+    let moedict: MoeDictionary = MoeDictionary::from_csv(file_moedict.data.as_ref());
 
-    rand::srand(date::now() as _);
-    let mut word = moedict.choose().unwrap();
+    let mut word = moedict.choose_word();
     let mut bopomofo = &word.bopomofo;
     let mut bopomofo_input = String::new();
 
     loop {
         if bopomofo == &bopomofo_input {
-            word = moedict.choose().unwrap();
+            word = moedict.choose_word();
             bopomofo_input = String::new();
             bopomofo = &word.bopomofo;
         }

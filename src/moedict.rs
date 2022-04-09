@@ -1,6 +1,9 @@
 extern crate csv;
 extern crate serde;
 
+use macroquad::miniquad::date;
+use macroquad::rand;
+use macroquad::rand::ChooseRandom;
 use serde::Deserialize;
 
 #[derive(PartialEq, Eq, Debug, Deserialize)]
@@ -25,12 +28,18 @@ impl MoeWord {
 }
 
 pub struct MoeDictionary {
-    pub moe_words: Vec<MoeWord>,
+    moe_words: Vec<MoeWord>,
 }
 
 impl MoeDictionary {
+    pub fn choose_word(&self) -> &MoeWord {
+        &self.moe_words.choose().unwrap()
+    }
+
     pub fn from_csv(moedict: &[u8]) -> Self {
         let mut reader = csv::Reader::from_reader(moedict);
+
+        rand::srand(date::now() as _);
 
         MoeDictionary {
             moe_words: reader
@@ -86,5 +95,45 @@ pub fn alphabet_to_bopomofo(character: char) -> char {
         '4' => 'ˋ',
         '7' => '˙',
         _ => character,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::rstest;
+
+    #[test]
+    fn test_load_moedict_from_csv() {
+        let dict_source = [
+            "title,bopomofo,definition",
+            "一,丨,自然数",
+            "一一,丨　丨,自然数",
+        ]
+        .join("\n");
+        let moe_words = MoeDictionary::from_csv(dict_source.as_bytes()).moe_words;
+        let moe_words_expected: Vec<MoeWord> = vec![
+            MoeWord {
+                title: "一".to_string(),
+                bopomofo: "丨".to_string(),
+                definition: "自然数".to_string(),
+            },
+            MoeWord {
+                title: "一一".to_string(),
+                bopomofo: "丨　丨".to_string(),
+                definition: "自然数".to_string(),
+            },
+        ];
+
+        assert_eq!(moe_words, moe_words_expected);
+    }
+
+    #[rstest]
+    #[case('v', 'ㄒ')]
+    #[case('8', 'ㄚ')]
+    #[case(' ', '　')]
+    #[case('%', '%')]
+    fn test_alphabet_to_bopomofo(#[case] input: char, #[case] expected: char) {
+        assert_eq!(alphabet_to_bopomofo(input), expected);
     }
 }
