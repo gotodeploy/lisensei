@@ -33,7 +33,7 @@ pub struct MoeDictionary {
 
 impl MoeDictionary {
     pub fn choose_word(&self) -> &MoeWord {
-        &self.moe_words.choose().unwrap()
+        self.moe_words.choose().unwrap()
     }
 
     pub fn from_csv(moedict: &[u8]) -> Self {
