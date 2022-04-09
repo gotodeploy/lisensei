@@ -1,5 +1,5 @@
-mod font;
-mod moedict;
+pub mod font;
+pub mod moedict;
 
 use lisensei::moedict::MoeDictionary;
 use macroquad::prelude::*;
