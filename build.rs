@@ -45,11 +45,6 @@ fn main() -> Result<(), Error> {
         .status()
         .unwrap();
 
-    Command::new("sed")
-        .args(&["-i", "s/丨/ㄧ/g", "assets/raw_dict.csv"])
-        .status()
-        .unwrap();
-
     Command::new("sqlite3")
         .args(&[
             "-csv",

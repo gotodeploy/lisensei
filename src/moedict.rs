@@ -18,8 +18,24 @@ impl MoeWord {
         &self.title
     }
 
-    pub fn bopomofo(&self) -> &String {
-        &self.bopomofo
+    pub fn bopomofo(&self) -> String {
+        self.bopomofo
+            .replace('丨', "ㄧ")
+            .replace('，', "")
+            .split('　')
+            .map(|c| {
+                if c.starts_with('˙') {
+                    c.replace('˙', "") + "˙"
+                } else {
+                    match c.chars().rev().next() {
+                        Some('ˊ') => c.to_string(),
+                        Some('ˇ') => c.to_string(),
+                        Some('ˋ') => c.to_string(),
+                        _ => c.to_string() + "　",
+                    }
+                }
+            })
+            .collect::<String>()
     }
 
     pub fn definition(&self) -> &String {
@@ -126,6 +142,24 @@ mod tests {
         ];
 
         assert_eq!(moe_words, moe_words_expected);
+    }
+
+    #[rstest]
+    #[case("ㄏㄨˊ　ㄌㄨㄣˊ　ㄊㄨㄣ　ㄗㄠˇ", "ㄏㄨˊㄌㄨㄣˊㄊㄨㄣ　ㄗㄠˇ")]
+    #[case("ㄍㄨ　˙ㄍㄨ", "ㄍㄨ　ㄍㄨ˙")]
+    #[case("ㄍㄨ　˙ㄋ丨ㄤ", "ㄍㄨ　ㄋㄧㄤ˙")]
+    #[case(
+        "丨ˋ　ㄈㄣ　ㄑ丨ㄢˊ，丨ˋ　ㄈㄣ　ㄏㄨㄛˋ",
+        "ㄧˋㄈㄣ　ㄑㄧㄢˊㄧˋㄈㄣ　ㄏㄨㄛˋ"
+    )]
+    fn test_bopomofo(#[case] bopomofo: String, #[case] bopomofo_expected: String) {
+        let moe_word = MoeWord {
+            title: "DUMMY".to_string(),
+            bopomofo: bopomofo,
+            definition: "DUMMY".to_string(),
+        };
+
+        assert_eq!(moe_word.bopomofo(), bopomofo_expected);
     }
 
     #[rstest]

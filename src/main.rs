@@ -32,25 +32,26 @@ async fn main() {
     let moedict: MoeDictionary = MoeDictionary::from_csv(file_moedict.data.as_ref());
 
     let mut word = moedict.choose_word();
-    let mut bopomofo = word.bopomofo();
     let mut bopomofo_input = String::new();
 
     loop {
-        if bopomofo == &bopomofo_input {
+        if word.bopomofo() == bopomofo_input {
             word = moedict.choose_word();
             bopomofo_input = String::new();
-            bopomofo = word.bopomofo();
         }
 
         let pressed = get_char_pressed().unwrap_or_default();
         let pressed_bopomofo = alphabet_to_bopomofo(pressed);
 
-        if bopomofo.starts_with(&format!("{}{}", bopomofo_input, pressed_bopomofo)) {
+        if word
+            .bopomofo()
+            .starts_with(&format!("{}{}", bopomofo_input, pressed_bopomofo))
+        {
             bopomofo_input.push(pressed_bopomofo)
         }
 
         font.draw_text(word.title(), 20.0, 0.0, 70, WHITE);
-        font.draw_text(word.bopomofo(), 40.0, 100.0, 30, WHITE);
+        font.draw_text(word.bopomofo().as_str(), 40.0, 100.0, 30, WHITE);
         font.draw_text(&bopomofo_input, 40.0, 150.0, 30, WHITE);
 
         next_frame().await
