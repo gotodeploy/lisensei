@@ -155,7 +155,7 @@ mod tests {
     fn test_bopomofo(#[case] bopomofo: String, #[case] bopomofo_expected: String) {
         let moe_word = MoeWord {
             title: "DUMMY".to_string(),
-            bopomofo: bopomofo,
+            bopomofo,
             definition: "DUMMY".to_string(),
         };
 
