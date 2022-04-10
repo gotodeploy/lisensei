@@ -5,7 +5,7 @@
 
 ## About
 
-注音(Bopomofo) typing training tool for traditional Chinese language learners.
+注音(Bopomofo) typing training tool for traditional Chinese language learners. You can play [this tool](https://gotodeploy.github.io/lisensei/) in major web browsers supporting [WebAssembly](https://webassembly.org/).
 
 ## Build instructions
 
