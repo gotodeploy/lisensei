@@ -1,13 +1,12 @@
-mod font;
-mod moedict;
+pub mod font;
+pub mod moedict;
 
-use macroquad::miniquad::date;
+use lisensei::moedict::MoeDictionary;
 use macroquad::prelude::*;
-use macroquad::rand::*;
 use rust_embed::RustEmbed;
 
 use font::load_font;
-use moedict::{alphabet_to_bopomofo, load_moedict};
+use moedict::alphabet_to_bopomofo;
 
 #[derive(RustEmbed)]
 #[folder = "$PATH_ASSETS"]
@@ -30,29 +29,29 @@ async fn main() {
     let file_font = Asset::get("font.ttf").unwrap();
     let file_moedict = Asset::get("dict.csv").unwrap();
     let font = load_font(file_font.data.as_ref());
-    let moedict = load_moedict(file_moedict.data.as_ref()).unwrap();
+    let moedict: MoeDictionary = MoeDictionary::from_csv(file_moedict.data.as_ref());
 
-    rand::srand(date::now() as _);
-    let mut word = moedict.choose().unwrap();
-    let mut bopomofo = &word.bopomofo;
+    let mut word = moedict.choose_word();
     let mut bopomofo_input = String::new();
 
     loop {
-        if bopomofo == &bopomofo_input {
-            word = moedict.choose().unwrap();
+        if word.bopomofo() == bopomofo_input {
+            word = moedict.choose_word();
             bopomofo_input = String::new();
-            bopomofo = &word.bopomofo;
         }
 
         let pressed = get_char_pressed().unwrap_or_default();
         let pressed_bopomofo = alphabet_to_bopomofo(pressed);
 
-        if bopomofo.starts_with(&format!("{}{}", bopomofo_input, pressed_bopomofo)) {
+        if word
+            .bopomofo()
+            .starts_with(&format!("{}{}", bopomofo_input, pressed_bopomofo))
+        {
             bopomofo_input.push(pressed_bopomofo)
         }
 
-        font.draw_text(&word.title, 20.0, 0.0, 70, WHITE);
-        font.draw_text(&word.bopomofo, 40.0, 100.0, 30, WHITE);
+        font.draw_text(word.title(), 20.0, 0.0, 70, WHITE);
+        font.draw_text(word.bopomofo().as_str(), 40.0, 100.0, 30, WHITE);
         font.draw_text(&bopomofo_input, 40.0, 150.0, 30, WHITE);
 
         next_frame().await
