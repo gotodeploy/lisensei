@@ -3,12 +3,73 @@ use std::fs::File;
 use std::io::Error;
 use std::process::Command;
 
+fn download_moedict() {
+    option_env!("URL_MOEDICT");
+
+    // Download Moe dictionary, a Chinese dictionary distributed by the government of Taiwan a.k.a g0v
+    // under CC BY-NC-ND 4.0
+    let url_default_moedict =
+        "https://github.com/g0v/moedict-data-csld/raw/master/中華語文大辭典全稿-20160620.csv"
+            .to_string();
+    let url_moedict: String = env::var("URL_MOEDICT").unwrap_or(url_default_moedict);
+
+    Command::new("wget")
+        .args(&[url_moedict.as_str(), "-nc", "-O", "assets/raw_dict.csv"])
+        .status()
+        .unwrap();
+}
+
+fn download_bopomofo_audio() {
+    option_env!("URL_BOPOMOFO_AUDIO");
+
+    // Download bopomofo audio files distributed by the government of Taiwan a.k.a g0v
+    // under CC BY-NC-ND 4.0
+    let url_default_bopomofo_audio =
+        "https://language.moe.gov.tw/001/Upload/files/SITE_CONTENT/M0001/deploy/bopomofo_materials_20170213.zip"
+        .to_string();
+    let url_bopomofo_audio: String =
+        env::var("URL_BOPOMOFO_AUDIO").unwrap_or(url_default_bopomofo_audio);
+
+    Command::new("wget")
+        .args(&[
+            url_bopomofo_audio.as_str(),
+            "-nc",
+            "-O",
+            "assets/bopomofo_materials.zip",
+        ])
+        .status()
+        .unwrap();
+
+    Command::new("unzip")
+        .args(&[
+            "-o",
+            "assets/bopomofo_materials.zip",
+            "audio/*",
+            "-d",
+            "assets/",
+        ])
+        .output()
+        .expect("failed to execute process");
+}
+
+fn download_font() {
+    option_env!("URL_FONT");
+
+    // Download a CNS11643 font distributed by the government of Taiwan under Open Government Data License
+    let url_default_font =
+        "https://github.com/m80126colin/cns11643/raw/main/data/Fonts/TW-Kai-98_1.ttf".to_string();
+    let url_font: String = env::var("URL_FONT").unwrap_or(url_default_font);
+
+    Command::new("wget")
+        .args(&[url_font.as_str(), "-nc", "-O", "assets/font.ttf"])
+        .status()
+        .unwrap();
+}
+
 fn main() -> Result<(), Error> {
     // Belows are unexpectedly needed
     option_env!("PATH_ASSETS");
     option_env!("DOWNLOAD_ASSETS");
-    option_env!("URL_MOEDICT");
-    option_env!("URL_FONT");
 
     if env::var_os("PATH_ASSETS").is_none() {
         println!("cargo:rustc-env=PATH_ASSETS=tests/assets/");
@@ -20,30 +81,14 @@ fn main() -> Result<(), Error> {
         return Ok(());
     }
 
-    // Download Moe dictionary, a Chinese dictionary distributed by the government of Taiwan a.k.a g0v
-    // under CC BY-NC-ND 4.0
-    let url_default_moedict =
-        "https://github.com/g0v/moedict-data-csld/raw/master/中華語文大辭典全稿-20160620.csv"
-            .to_string();
-    let url_moedict: String = env::var("URL_MOEDICT").unwrap_or(url_default_moedict);
-
-    // Download a CNS11643 font distributed by the government of Taiwan under Open Government Data License
-    let url_default_font =
-        "https://github.com/m80126colin/cns11643/raw/main/data/Fonts/TW-Kai-98_1.ttf".to_string();
-    let url_font: String = env::var("URL_FONT").unwrap_or(url_default_font);
-
     Command::new("mkdir")
         .args(&["-p", "assets"])
         .status()
         .unwrap();
-    Command::new("wget")
-        .args(&[url_font.as_str(), "-nc", "-O", "assets/font.ttf"])
-        .status()
-        .unwrap();
-    Command::new("wget")
-        .args(&[url_moedict.as_str(), "-nc", "-O", "assets/raw_dict.csv"])
-        .status()
-        .unwrap();
+
+    download_font();
+    download_bopomofo_audio();
+    download_moedict();
 
     Command::new("sqlite3")
         .args(&[
