@@ -1,16 +1,18 @@
+pub mod bopomofo;
 pub mod font;
 pub mod moedict;
 
-use lisensei::moedict::MoeDictionary;
 use macroquad::prelude::*;
 use rust_embed::RustEmbed;
 
+use bopomofo::Bopomofo;
 use font::load_font;
-use moedict::alphabet_to_bopomofo;
+use moedict::MoeDictionary;
 
 #[derive(RustEmbed)]
 #[folder = "$PATH_ASSETS"]
-#[exclude = "raw_dict.csv"]
+#[include = "dict.csv"]
+#[include = "font.ttf"]
 struct Asset;
 
 fn window_conf() -> Conf {
@@ -41,7 +43,7 @@ async fn main() {
         }
 
         let pressed = get_char_pressed().unwrap_or_default();
-        let pressed_bopomofo = alphabet_to_bopomofo(pressed);
+        let pressed_bopomofo: char = Bopomofo::from(pressed).into();
 
         if word
             .bopomofo()
