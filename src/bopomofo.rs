@@ -190,7 +190,7 @@ impl From<char> for Bopomofo {
 impl fmt::Display for Bopomofo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let bopomofo: char = (*self).into();
-        write!(f, "{:?}", bopomofo)
+        write!(f, "{}", bopomofo)
     }
 }
 

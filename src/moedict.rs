@@ -22,7 +22,7 @@ impl MoeWord {
 
     pub fn bopomofo(&self) -> String {
         self.bopomofo
-            .replace('丨', &Bopomofo::T.to_string())
+            .replace('丨', &Bopomofo::I.to_string())
             .replace('，', "")
             .split('　')
             .map(|c| {
@@ -38,6 +38,7 @@ impl MoeWord {
                 }
             })
             .collect::<String>()
+        // .replace('\'', "")
     }
 
     pub fn definition(&self) -> &String {
@@ -99,12 +100,12 @@ mod tests {
     }
 
     #[rstest]
-    #[case("ㄏㄨˊ　ㄌㄨㄣˊ　ㄊㄨㄣ　ㄗㄠˇ", "ㄏㄨˊㄌㄨㄣˊㄊㄨㄣ　ㄗㄠˇ")]
-    #[case("ㄍㄨ　˙ㄍㄨ", "ㄍㄨ　ㄍㄨ˙")]
-    #[case("ㄍㄨ　˙ㄋ丨ㄤ", "ㄍㄨ　ㄋㄧㄤ˙")]
+    #[case("ㄏㄨˊ　ㄌㄨㄣˊ　ㄊㄨㄣ　ㄗㄠˇ", "ㄏㄨˊㄌㄨㄣˊㄊㄨㄣˉㄗㄠˇ")]
+    #[case("ㄍㄨ　˙ㄍㄨ", "ㄍㄨˉㄍㄨ˙")]
+    #[case("ㄍㄨ　˙ㄋ丨ㄤ", "ㄍㄨˉㄋㄧㄤ˙")]
     #[case(
         "丨ˋ　ㄈㄣ　ㄑ丨ㄢˊ，丨ˋ　ㄈㄣ　ㄏㄨㄛˋ",
-        "ㄧˋㄈㄣ　ㄑㄧㄢˊㄧˋㄈㄣ　ㄏㄨㄛˋ"
+        "ㄧˋㄈㄣˉㄑㄧㄢˊㄧˋㄈㄣˉㄏㄨㄛˋ"
     )]
     fn test_bopomofo(#[case] bopomofo: String, #[case] bopomofo_expected: String) {
         let moe_word = MoeWord {
