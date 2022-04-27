@@ -38,7 +38,6 @@ impl MoeWord {
                 }
             })
             .collect::<String>()
-        // .replace('\'', "")
     }
 
     pub fn definition(&self) -> &String {

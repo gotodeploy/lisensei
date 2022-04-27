@@ -1,4 +1,7 @@
+use std::collections::HashMap;
 use std::fmt;
+
+use macroquad::audio::Sound;
 
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
 pub enum Bopomofo {
@@ -187,10 +190,65 @@ impl From<char> for Bopomofo {
     }
 }
 
+impl From<u8> for Bopomofo {
+    fn from(n: u8) -> Bopomofo {
+        match n {
+            1u8 => Bopomofo::B,
+            2u8 => Bopomofo::P,
+            3u8 => Bopomofo::M,
+            4u8 => Bopomofo::F,
+            5u8 => Bopomofo::D,
+            6u8 => Bopomofo::T,
+            7u8 => Bopomofo::N,
+            8u8 => Bopomofo::L,
+            9u8 => Bopomofo::G,
+            10u8 => Bopomofo::K,
+            11u8 => Bopomofo::H,
+            12u8 => Bopomofo::J,
+            13u8 => Bopomofo::Q,
+            14u8 => Bopomofo::X,
+            15u8 => Bopomofo::Zh,
+            16u8 => Bopomofo::Ch,
+            17u8 => Bopomofo::Sh,
+            18u8 => Bopomofo::R,
+            19u8 => Bopomofo::Z,
+            20u8 => Bopomofo::C,
+            21u8 => Bopomofo::S,
+            22u8 => Bopomofo::A,
+            23u8 => Bopomofo::O,
+            24u8 => Bopomofo::E,
+            25u8 => Bopomofo::Eh,
+            26u8 => Bopomofo::Ai,
+            27u8 => Bopomofo::Ei,
+            28u8 => Bopomofo::Au,
+            29u8 => Bopomofo::Ou,
+            30u8 => Bopomofo::An,
+            31u8 => Bopomofo::En,
+            32u8 => Bopomofo::Ang,
+            33u8 => Bopomofo::Eng,
+            34u8 => Bopomofo::Er,
+            35u8 => Bopomofo::I,
+            36u8 => Bopomofo::U,
+            37u8 => Bopomofo::Iu,
+            _ => Bopomofo::Tone1,
+        }
+    }
+}
+
 impl fmt::Display for Bopomofo {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let bopomofo: char = (*self).into();
         write!(f, "{}", bopomofo)
+    }
+}
+
+pub struct BopomofoSound {
+    pub bopomofo: HashMap<Bopomofo, Sound>,
+}
+
+impl BopomofoSound {
+    pub fn new(sounds: [(Bopomofo, Sound); 36]) -> Self {
+        BopomofoSound { bopomofo: HashMap::from(sounds) }
     }
 }
 

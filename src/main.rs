@@ -1,11 +1,15 @@
-pub mod bopomofo;
-pub mod font;
-pub mod moedict;
+mod bopomofo;
+mod font;
+mod moedict;
 
+use std::convert::TryInto;
+
+use macroquad::audio::*;
 use macroquad::prelude::*;
 use rust_embed::RustEmbed;
 
 use bopomofo::Bopomofo;
+use bopomofo::BopomofoSound;
 use font::load_font;
 use moedict::MoeDictionary;
 
@@ -13,6 +17,7 @@ use moedict::MoeDictionary;
 #[folder = "$PATH_ASSETS"]
 #[include = "dict.csv"]
 #[include = "font.ttf"]
+#[include = "audio/F*.WAV"]
 struct Asset;
 
 fn window_conf() -> Conf {
@@ -28,9 +33,16 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    let mut sounds: Vec<(Bopomofo, Sound)> = Vec::new();
+    for i in 1..37 {
+        let file_audio = Asset::get(format!("audio/F{i}.WAV").as_str()).unwrap();
+        sounds.push((Bopomofo::from(i), load_sound_from_bytes(file_audio.data.as_ref()).await.unwrap()));
+    }
+    let bopomofo_sound = BopomofoSound::new(sounds.try_into().unwrap());
+
     let file_font = Asset::get("font.ttf").unwrap();
-    let file_moedict = Asset::get("dict.csv").unwrap();
     let font = load_font(file_font.data.as_ref());
+    let file_moedict = Asset::get("dict.csv").unwrap();
     let moedict: MoeDictionary = MoeDictionary::from_csv(file_moedict.data.as_ref());
 
     let mut word = moedict.choose_word();
@@ -43,13 +55,19 @@ async fn main() {
         }
 
         let pressed = get_char_pressed().unwrap_or_default();
-        let pressed_bopomofo: char = Bopomofo::from(pressed).into();
+        let pressed_bopomofo: Bopomofo = Bopomofo::from(pressed);
+        let pressed_bopomofo_character: char = pressed_bopomofo.into();
 
         if word
             .bopomofo()
-            .starts_with(&format!("{}{}", bopomofo_input, pressed_bopomofo))
+            .starts_with(&format!("{}{}", bopomofo_input, pressed_bopomofo_character))
         {
-            bopomofo_input.push(pressed_bopomofo)
+            match bopomofo_sound.bopomofo.get(&pressed_bopomofo) {
+                Some(&sound) => play_sound_once(sound),
+                _  => (),
+            }
+
+            bopomofo_input.push(pressed_bopomofo_character)
         }
 
         font.draw_text(word.title(), 20.0, 0.0, 70, WHITE);
