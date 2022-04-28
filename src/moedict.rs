@@ -40,6 +40,7 @@ impl MoeWord {
             .collect::<String>()
     }
 
+    #[allow(dead_code)]
     pub fn definition(&self) -> &String {
         &self.definition
     }

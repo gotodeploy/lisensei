@@ -254,9 +254,8 @@ impl BopomofoSound {
     }
 
     pub fn play(&self, bopomofo: &Bopomofo) {
-        match self.bopomofo.get(&bopomofo) {
-            Some(&sound) => play_sound_once(sound),
-            _ => (),
+        if let Some(&sound) = self.bopomofo.get(bopomofo) {
+            play_sound_once(sound)
         }
     }
 }
