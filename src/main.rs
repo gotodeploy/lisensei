@@ -36,7 +36,12 @@ async fn main() {
     let mut sounds: Vec<(Bopomofo, Sound)> = Vec::new();
     for i in 1..37 {
         let file_audio = Asset::get(format!("audio/F{i}.WAV").as_str()).unwrap();
-        sounds.push((Bopomofo::from(i), load_sound_from_bytes(file_audio.data.as_ref()).await.unwrap()));
+        sounds.push((
+            Bopomofo::from(i),
+            load_sound_from_bytes(file_audio.data.as_ref())
+                .await
+                .unwrap(),
+        ));
     }
     let bopomofo_sound = BopomofoSound::new(sounds.try_into().unwrap());
 
@@ -54,20 +59,14 @@ async fn main() {
             bopomofo_input = String::new();
         }
 
-        let pressed = get_char_pressed().unwrap_or_default();
-        let pressed_bopomofo: Bopomofo = Bopomofo::from(pressed);
-        let pressed_bopomofo_character: char = pressed_bopomofo.into();
+        let pressed: char = Bopomofo::from(get_char_pressed().unwrap_or_default()).into();
 
         if word
             .bopomofo()
-            .starts_with(&format!("{}{}", bopomofo_input, pressed_bopomofo_character))
+            .starts_with(&format!("{}{}", bopomofo_input, pressed))
         {
-            match bopomofo_sound.bopomofo.get(&pressed_bopomofo) {
-                Some(&sound) => play_sound_once(sound),
-                _  => (),
-            }
-
-            bopomofo_input.push(pressed_bopomofo_character)
+            bopomofo_sound.play(&Bopomofo::from(pressed));
+            bopomofo_input.push(pressed)
         }
 
         font.draw_text(word.title(), 20.0, 0.0, 70, WHITE);

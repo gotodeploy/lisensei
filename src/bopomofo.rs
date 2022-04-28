@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt;
 
-use macroquad::audio::Sound;
+use macroquad::audio::{play_sound_once, Sound};
 
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
 pub enum Bopomofo {
@@ -248,7 +248,16 @@ pub struct BopomofoSound {
 
 impl BopomofoSound {
     pub fn new(sounds: [(Bopomofo, Sound); 36]) -> Self {
-        BopomofoSound { bopomofo: HashMap::from(sounds) }
+        BopomofoSound {
+            bopomofo: HashMap::from(sounds),
+        }
+    }
+
+    pub fn play(&self, bopomofo: &Bopomofo) {
+        match self.bopomofo.get(&bopomofo) {
+            Some(&sound) => play_sound_once(sound),
+            _ => (),
+        }
     }
 }
 
