@@ -6,6 +6,8 @@ use macroquad::rand;
 use macroquad::rand::ChooseRandom;
 use serde::Deserialize;
 
+use crate::bopomofo::Bopomofo;
+
 #[derive(PartialEq, Eq, Debug, Deserialize)]
 pub struct MoeWord {
     title: String,      // 正體字形
@@ -20,24 +22,25 @@ impl MoeWord {
 
     pub fn bopomofo(&self) -> String {
         self.bopomofo
-            .replace('丨', "ㄧ")
+            .replace('丨', &Bopomofo::I.to_string())
             .replace('，', "")
             .split('　')
             .map(|c| {
-                if c.starts_with('˙') {
-                    c.replace('˙', "") + "˙"
+                if c.starts_with(char::from(Bopomofo::Tone5)) {
+                    c.replace(char::from(Bopomofo::Tone5), "") + &Bopomofo::Tone5.to_string()
                 } else {
-                    match c.chars().rev().next() {
-                        Some('ˊ') => c.to_string(),
-                        Some('ˇ') => c.to_string(),
-                        Some('ˋ') => c.to_string(),
-                        _ => c.to_string() + "　",
+                    match Bopomofo::from(c.chars().rev().next().unwrap()) {
+                        Bopomofo::Tone2 => c.to_string(),
+                        Bopomofo::Tone3 => c.to_string(),
+                        Bopomofo::Tone4 => c.to_string(),
+                        _ => c.to_string() + &Bopomofo::Tone1.to_string(),
                     }
                 }
             })
             .collect::<String>()
     }
 
+    #[allow(dead_code)]
     pub fn definition(&self) -> &String {
         &self.definition
     }
@@ -63,54 +66,6 @@ impl MoeDictionary {
                 .map(|result| result.unwrap())
                 .collect::<Vec<MoeWord>>(),
         }
-    }
-}
-
-pub fn alphabet_to_bopomofo(character: char) -> char {
-    match character {
-        '1' => 'ㄅ',
-        'q' => 'ㄆ',
-        'a' => 'ㄇ',
-        'z' => 'ㄈ',
-        '2' => 'ㄉ',
-        'w' => 'ㄊ',
-        's' => 'ㄋ',
-        'x' => 'ㄌ',
-        'e' => 'ㄍ',
-        'd' => 'ㄎ',
-        'c' => 'ㄏ',
-        'r' => 'ㄐ',
-        'f' => 'ㄑ',
-        'v' => 'ㄒ',
-        '5' => 'ㄓ',
-        't' => 'ㄔ',
-        'g' => 'ㄕ',
-        'b' => 'ㄖ',
-        'y' => 'ㄗ',
-        'h' => 'ㄘ',
-        'n' => 'ㄙ',
-        'u' => 'ㄧ',
-        'j' => 'ㄨ',
-        'm' => 'ㄩ',
-        '8' => 'ㄚ',
-        'i' => 'ㄛ',
-        'k' => 'ㄜ',
-        ',' => 'ㄝ',
-        '9' => 'ㄞ',
-        'o' => 'ㄟ',
-        'l' => 'ㄠ',
-        '.' => 'ㄡ',
-        '0' => 'ㄢ',
-        'p' => 'ㄣ',
-        ';' => 'ㄤ',
-        '/' => 'ㄥ',
-        '-' => 'ㄦ',
-        ' ' => '　',
-        '6' => 'ˊ',
-        '3' => 'ˇ',
-        '4' => 'ˋ',
-        '7' => '˙',
-        _ => character,
     }
 }
 
@@ -145,12 +100,12 @@ mod tests {
     }
 
     #[rstest]
-    #[case("ㄏㄨˊ　ㄌㄨㄣˊ　ㄊㄨㄣ　ㄗㄠˇ", "ㄏㄨˊㄌㄨㄣˊㄊㄨㄣ　ㄗㄠˇ")]
-    #[case("ㄍㄨ　˙ㄍㄨ", "ㄍㄨ　ㄍㄨ˙")]
-    #[case("ㄍㄨ　˙ㄋ丨ㄤ", "ㄍㄨ　ㄋㄧㄤ˙")]
+    #[case("ㄏㄨˊ　ㄌㄨㄣˊ　ㄊㄨㄣ　ㄗㄠˇ", "ㄏㄨˊㄌㄨㄣˊㄊㄨㄣˉㄗㄠˇ")]
+    #[case("ㄍㄨ　˙ㄍㄨ", "ㄍㄨˉㄍㄨ˙")]
+    #[case("ㄍㄨ　˙ㄋ丨ㄤ", "ㄍㄨˉㄋㄧㄤ˙")]
     #[case(
         "丨ˋ　ㄈㄣ　ㄑ丨ㄢˊ，丨ˋ　ㄈㄣ　ㄏㄨㄛˋ",
-        "ㄧˋㄈㄣ　ㄑㄧㄢˊㄧˋㄈㄣ　ㄏㄨㄛˋ"
+        "ㄧˋㄈㄣˉㄑㄧㄢˊㄧˋㄈㄣˉㄏㄨㄛˋ"
     )]
     fn test_bopomofo(#[case] bopomofo: String, #[case] bopomofo_expected: String) {
         let moe_word = MoeWord {
@@ -160,14 +115,5 @@ mod tests {
         };
 
         assert_eq!(moe_word.bopomofo(), bopomofo_expected);
-    }
-
-    #[rstest]
-    #[case('v', 'ㄒ')]
-    #[case('8', 'ㄚ')]
-    #[case(' ', '　')]
-    #[case('%', '%')]
-    fn test_alphabet_to_bopomofo(#[case] input: char, #[case] expected: char) {
-        assert_eq!(alphabet_to_bopomofo(input), expected);
     }
 }
