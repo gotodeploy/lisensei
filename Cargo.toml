@@ -11,7 +11,7 @@ license = "Apache-2.0"
 macroquad = "0.3"
 macroquad-text = "0.1.1"
 serde = { version = "1", features = ["derive"] }
-csv = "1.1"
+csv = "1.2"
 rust-embed = {version = "6.4.0", features = ["compression", "interpolate-folder-path", "include-exclude"] }
 
 [dev-dependencies]
